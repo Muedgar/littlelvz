@@ -2,3 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* In your Tailwind CSS file */
+@layer components {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none; /* For IE and Edge */
+    scrollbar-width: none; /* For Firefox */
+  }
+}

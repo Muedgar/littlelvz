@@ -5,7 +5,7 @@ import LittleLogo from "./components/nav/logo";
 import LittleMenu from "./components/nav/menu";
 import LittleMobile from "./components/nav/mobile";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExpand, faMessage, faMicrophone, faMicrophoneAltSlash, faVideo, faX } from "@fortawesome/free-solid-svg-icons";
+import { faExpand, faMessage, faMicrophone, faMicrophoneAltSlash, faStar, faVideo, faX } from "@fortawesome/free-solid-svg-icons";
 import React, { useEffect, useRef, useState } from 'react';
 
 export default function Home() {
@@ -14,19 +14,23 @@ export default function Home() {
   const mainVideoRef:any = useRef(null);
   const smallVideoRef:any = useRef(null);
   const fullscreenRef:any = useRef(null);
+  const [videoStreams, setVideoStreams] = useState(new Array(10).fill(null)); // Example with 10 dummy streams
 
   useEffect(() => {
-    // Request access to the webcam and microphone
     navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then((stream:any) => {
-        // Assign the media stream to video elements
+      .then((stream: any) => {
+        // Populate the entire videoStreams array with the same stream
+        setVideoStreams(new Array(10).fill(stream));
+  
+        // Assign the media stream to main video element
         if (mainVideoRef.current) mainVideoRef.current.srcObject = stream;
-        if (smallVideoRef.current) smallVideoRef.current.srcObject = stream;
       })
       .catch(error => {
         console.error("Error accessing media devices:", error);
       });
   }, []);
+  
+  
 
   const toggleFullScreen = () => {
     if (fullscreenRef.current) {
@@ -65,7 +69,7 @@ export default function Home() {
         <video 
           style={{ transform: "scaleX(-1)" }}
           className="w-full h-full object-cover rounded-md bg-white" ref={mainVideoRef} autoPlay={true} muted />
-        <div className="absolute bottom-[36%] z-10 text-white w-[90%] flex justify-between">
+        <div className="absolute bottom-[32%] z-10 text-white w-[90%] flex justify-between">
           <p className="w-fit bg-[#717171] p-1 rounded-md ml-4">Mutangana Edgar</p>
           <FontAwesomeIcon 
           onClick={toggleFullScreen}
@@ -73,19 +77,35 @@ export default function Home() {
             icon={faExpand} color="#37cbdf" />
         </div>
         </div>
-        {/* Their video */}
-        <div className="w-[80%] h-[20%] absolute bottom-[12%]">
-        <video
-          style={{ transform: "scaleX(-1)" }}
-          className="w-full h-full object-cover rounded-md  bg-[#e3e]" ref={smallVideoRef} autoPlay={true} muted />
-        <div className="absolute bottom-[5%] z-10 text-white w-[97%] flex justify-between">
-          
-          <FontAwesomeIcon
-            onClick={() => setTheirMike(!theirMike)}
-            className={`w-[20px] h-[20px] ${theirMike?"bg-black":"bg-red-800"} p-2 rounded-[50%] ml-4`}
-            icon={theirMike?faMicrophone:faMicrophoneAltSlash} color="whit" />
-          <p className="w-fit h-fit bg-[#717171] p-1 mt-1 rounded-md text-xs">Mutangana Edgar</p>
-        </div>
+        {/* Video elements */}
+
+        <div className="absolute bottom-[10%] w-full h-[20%] flex overflow-auto hide-scrollbar flex-nowrap pl-2">
+          {videoStreams.map((stream, index) => (
+            <div key={index} className="relative w-[250px] h-full mr-2 flex-shrink-0">
+              <video 
+                style={{ transform: "scaleX(-1)" }}
+                className="w-full h-full object-cover rounded-md bg-[#e3e3e3]" 
+                ref={el => el && (el.srcObject = stream)} // Assign the stream
+                autoPlay 
+                muted 
+              />
+              <div className="absolute bottom-[5%] z-10 text-white w-[97%] flex justify-between">
+                
+                <FontAwesomeIcon
+                  onClick={() => setTheirMike(!theirMike)}
+                  className={`w-[20px] h-[20px] ${theirMike?"bg-black":"bg-red-800"} p-2 rounded-[50%] ml-4`}
+                  icon={theirMike?faMicrophone:faMicrophoneAltSlash} color="white" />
+                <p className="w-fit h-fit bg-[#717171] p-1 mt-1 rounded-md text-xs">Mutangana Edgar</p>
+              </div>
+
+              <div className="absolute top-1 right-2 z-10 text-white flex justify-between">
+                
+                <FontAwesomeIcon
+                  className={`w-[20px] h-[20px] hover:bg-[#e8c40f] p-2 rounded-[50%]  ml-4`}
+                  icon={faStar} color="black" />
+              </div>
+            </div>
+          ))}
         </div>
         <div className="w-[80%] h-fit absolute bottom-[4%] flex flex-row justify-center items-center">
           <FontAwesomeIcon
